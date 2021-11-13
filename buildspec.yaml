@@ -17,13 +17,13 @@ phases:
 
   pre_build:
     commands:
-      - echo Logging in to Amazon EKS...
+      - echo 'Logging in to Amazon EKS...'
       - aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name $AWS_CLUSTER_NAME
-      - echo check config 
+      - echo 'Check config'
       - kubectl config view --minify
-      - echo check kubectl access
+      - echo 'Check kubectl access'
       - kubectl get svc
-      - echo Logging in to Amazon ECR...
+      - echo 'Logging in to Amazon ECR...'
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
       - docker pull $REPOSITORY_URI:$IMAGE_TAG
@@ -31,8 +31,8 @@ phases:
 
   build:
     commands:
-      - echo Build started on `date`
-      - echo Building the Docker image...          
+      - echo 'Build started on `date`'
+      - echo 'Building the Docker image...'          
       - docker build --cache-from $REPOSITORY_URI:$IMAGE_TAG -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG 
 
