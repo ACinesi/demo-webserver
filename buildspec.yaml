@@ -44,6 +44,3 @@ phases:
       - echo 'Deploy the latest image to cluster'
       - kubectl set image deployment/webserver-deployment webserver=$REPOSITORY_URI:$IMAGE_TAG -n webserver-ns
       - kubectl rollout status deployment/webserver-deployment -n webserver-ns
-
-# TODO
-# - Add REPOSITORY_URI, IMAGE_REPO_NAME, IMAGE_TAG
