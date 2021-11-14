@@ -17,6 +17,10 @@ phases:
 
   pre_build:
     commands:
+      - echo 'Checking current user...'
+      - aws sts get-caller-identity
+      # - export AWS_SECRET_ACCESS_KEY=f0pAya5gmGBsz66UW//mLqxjRu7sbYvguKZDNZrI
+      # - export AWS_ACCESS_KEY_ID=AKIAVWNTLHOE7EWC6HTL
       - echo 'Logging in to Amazon EKS...'
       - aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name $AWS_CLUSTER_NAME
       - echo 'Check config'
