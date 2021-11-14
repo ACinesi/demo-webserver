@@ -17,7 +17,7 @@ phases:
 
   pre_build:
     commands:
-      - echo 'Checking current user...'
+      - echo 'Check current user'
       - aws sts get-caller-identity
       # - export AWS_SECRET_ACCESS_KEY=f0pAya5gmGBsz66UW//mLqxjRu7sbYvguKZDNZrI
       # - export AWS_ACCESS_KEY_ID=AKIAVWNTLHOE7EWC6HTL
@@ -26,13 +26,12 @@ phases:
       - echo 'Check config'
       - kubectl config view --minify
       - echo 'Check kubectl access'
-      - kubectl get svc
+      - kubectl get deployments/webserver-deployment -n webserver-ns
       - echo 'Logging in to Amazon ECR...'
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
       - docker pull $REPOSITORY_URI:$IMAGE_TAG
       
-
   build:
     commands:
       - echo 'Build started on `date`'
