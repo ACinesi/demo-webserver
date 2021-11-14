@@ -19,8 +19,6 @@ phases:
     commands:
       - echo 'Check current user'
       - aws sts get-caller-identity
-      # - export AWS_SECRET_ACCESS_KEY=f0pAya5gmGBsz66UW//mLqxjRu7sbYvguKZDNZrI
-      # - export AWS_ACCESS_KEY_ID=AKIAVWNTLHOE7EWC6HTL
       - echo 'Logging in to Amazon EKS...'
       - aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name $AWS_CLUSTER_NAME
       - echo 'Check config'
@@ -36,15 +34,18 @@ phases:
     commands:
       - echo 'Build started on `date`'
       - echo 'Building the Docker image...'          
-      # - docker build --cache-from $REPOSITORY_URI:$IMAGE_TAG -t $IMAGE_REPO_NAME:$IMAGE_TAG .
-      - docker build -t $IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER .
-      - docker tag $IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER 
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
 
   post_build:
     commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
-      - echo Push the latest image to cluster
-      - kubectl set image deployment/webserver-deployment webserver=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER -n webserver-ns
+      - echo 'Build completed on `date`'
+      - echo 'Pushing the Docker image...'
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo 'Deploy the latest image to cluster'
+      - kubectl set image deployment/webserver-deployment webserver=$REPOSITORY_URI:$IMAGE_TAG -n webserver-ns
       - kubectl rollout status deployment/webserver-deployment -n webserver-ns
+
+# TODO
+# - Add REPOSITORY_URI, IMAGE_REPO_NAME, IMAGE_TAG
